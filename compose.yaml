@@ -1,0 +1,16 @@
+version: "3"
+services:
+  app:
+    build: .
+    volumes:
+      - tmp:/tmp:rw
+      - ./sock:/sock:rw
+    environment:
+      LISTEN: /sock/listen.sock
+      #DEBUG: 'true'
+    network_mode: none
+    read_only: true
+    security_opt:
+      - no-new-privileges=true
+volumes:
+  tmp: {}

@@ -3,5 +3,5 @@
 Dockerfile
 .dockerignore
 compose.yaml
-input
-output
+*.pdf
+*.mp4
