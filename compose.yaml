@@ -5,9 +5,6 @@ services:
     volumes:
       - tmp:/tmp:rw
       - sock:/sock/:rw
-    environment:
-      LISTEN: /sock/listen.sock
-      #DEBUG: 'true'
     network_mode: none
     read_only: true
     security_opt:

@@ -28,5 +28,6 @@ COPY --from=builder /usr/local/bin/ffmpeg /usr/local/bin/ffmpeg
 COPY --from=build-server /work/pdf2mp4 /pdf2mp4
 COPY run.sh /run.sh
 USER daemon
+ENV LISTEN=/sock/listen.sock
 CMD ["/pdf2mp4"]
 STOPSIGNAL SIGINT
