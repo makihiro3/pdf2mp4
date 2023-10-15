@@ -4,7 +4,7 @@ services:
     build: .
     volumes:
       - tmp:/tmp:rw
-      - ./sock:/sock:rw
+      - sock:/sock/:rw
     environment:
       LISTEN: /sock/listen.sock
       #DEBUG: 'true'
@@ -12,5 +12,13 @@ services:
     read_only: true
     security_opt:
       - no-new-privileges=true
+  nginx:
+    image: nginx:alpine
+    ports:
+      - 8080:80
+    volumes:
+      - sock:/sock/:ro
+      - ./nginx.conf:/etc/nginx/nginx.conf
 volumes:
   tmp: {}
+  sock: {}

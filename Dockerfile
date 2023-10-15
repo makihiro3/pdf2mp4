@@ -23,6 +23,7 @@ RUN make install
 
 FROM ubuntu:jammy
 RUN apt-get update && apt-get install -y --no-install-recommends libopenh264-cisco6 poppler-utils && apt-get clean && rm -rf /var/lib/apt/lists/*
+RUN install -d -o root -g daemon -m 0775 /sock
 COPY --from=builder /usr/local/bin/ffmpeg /usr/local/bin/ffmpeg
 COPY --from=build-server /work/pdf2mp4 /pdf2mp4
 COPY run.sh /run.sh
