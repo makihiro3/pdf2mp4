@@ -22,5 +22,11 @@ ulimit -R 0         #real-time priority
 #ulimit -T 64        #thread
 
 DIR="$1"
+SIZE="$2"
+PDFTOPPM_OPTS=()
+if [[ $SIZE != 0 ]]; then
+    PDFTOPPM_OPTS+=( -scale-to-x "-1" -scale-to-y "$SIZE" )
+fi
+
 set -xe
-pdftoppm "$DIR/input.pdf" | ffmpeg -r 1/2 -f ppm_pipe -i - -c:v libopenh264 -profile:v main -allow_skip_frames 1 -r 30 -y -f mp4 "$DIR/output.mp4"
+pdftoppm "${PDFTOPPM_OPTS[@]}" "$DIR/input.pdf" | ffmpeg -r 1/2 -f ppm_pipe -i - -c:v libopenh264 -profile:v main -allow_skip_frames 1 -r 30 -y -f mp4 "$DIR/output.mp4"
