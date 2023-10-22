@@ -91,20 +91,20 @@ func HandleFunc(w http.ResponseWriter, r *http.Request) {
 		io.WriteString(w, http.StatusText(m))
 		return
 	}
-	size := 0
-	switch r.Form.Get("size") {
+	size := "0"
+	switch v := r.Form.Get("size"); v {
 	case "720":
-		size = 720
+		size = v
 	case "1080":
-		size = 1080
+		size = v
 	case "1440":
-		size = 1440
+		size = v
 	case "2160":
-		size = 2160
+		size = v
 	case "original":
-		size = 0
+		size = "0"
 	case "":
-		size = 0
+		size = "0"
 	default:
 		m := http.StatusBadRequest
 		w.WriteHeader(m)
@@ -112,7 +112,22 @@ func HandleFunc(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := Process(w, r.Body, size); err != nil {
+	interval := "1"
+	switch v := r.Form.Get("interval"); v {
+	case "1":
+		interval = v
+	case "2":
+		interval = v
+	case "3":
+		interval = v
+	default:
+		m := http.StatusBadRequest
+		w.WriteHeader(m)
+		io.WriteString(w, http.StatusText(m))
+		return
+	}
+
+	if err := Process(w, r.Body, size, interval); err != nil {
 		log.Print(err)
 		m := http.StatusInternalServerError
 		w.WriteHeader(m)
@@ -122,7 +137,7 @@ func HandleFunc(w http.ResponseWriter, r *http.Request) {
 	r.Body.Close()
 }
 
-func Process(w io.Writer, r io.Reader, size int) error {
+func Process(w io.Writer, r io.Reader, size, interval string) error {
 	dir, err := os.MkdirTemp("", "example-*")
 	if err != nil {
 		return err
@@ -146,7 +161,7 @@ func Process(w io.Writer, r io.Reader, size int) error {
 		return err
 	}
 
-	c := exec.Command("/run.sh", dir, fmt.Sprintf("%d", size))
+	c := exec.Command("/run.sh", dir, size, interval)
 	c.Stdout = os.Stdout
 	c.Stderr = os.Stderr
 

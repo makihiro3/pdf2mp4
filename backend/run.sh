@@ -23,10 +23,17 @@ ulimit -R 0         #real-time priority
 
 DIR="$1"
 SIZE="$2"
+INTERVAL="$3"
 PDFTOPPM_OPTS=()
 if [[ $SIZE != 0 ]]; then
     PDFTOPPM_OPTS+=( -scale-to-x "-1" -scale-to-y "$SIZE" )
 fi
+RATE="1/2"
+case "$INTERVAL" in
+1) RATE=1 ;;
+2) RATE="1/2" ;;
+3) RATE="1/3" ;;
+esac
 
 set -xe
-pdftoppm "${PDFTOPPM_OPTS[@]}" "$DIR/input.pdf" | ffmpeg -r 1/2 -f ppm_pipe -i - -c:v libopenh264 -profile:v main -allow_skip_frames 1 -r 30 -y -f mp4 "$DIR/output.mp4"
+pdftoppm "${PDFTOPPM_OPTS[@]}" "$DIR/input.pdf" | ffmpeg -r "$RATE" -f ppm_pipe -i - -c:v libopenh264 -profile:v main -allow_skip_frames 1 -r 30 -y -f mp4 "$DIR/output.mp4"

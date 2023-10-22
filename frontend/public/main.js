@@ -18,8 +18,8 @@ const downloadLink = (blob, filename) => {
     a.remove()
 }
 
-const convert = async (file, size) => {
-    const res = await fetch(`/convert.cgi?size=${size}`,{
+const convert = async (file, size, interval) => {
+    const res = await fetch(`/convert.cgi?size=${size}&interval=${interval}`,{
         method: "POST",
         mode: "same-origin",
         cache: "no-store",
@@ -44,6 +44,7 @@ const convert = async (file, size) => {
 const handler = async event =>{
     document.getElementById("message").innerText = ""
     const size = document.getElementById("size").value
+    const interval = document.getElementById("interval").value
     const input = document.getElementById("input")
     if(!(input.files instanceof FileList)){
         log("input is not input[file] node")
@@ -60,7 +61,7 @@ const handler = async event =>{
         }
         name += `.${size}.mp4`
         const content = await readFileAsync(f)
-        const blob = await convert(content, size)
+        const blob = await convert(content, size, interval)
         if (blob !== null) {
             downloadLink(blob, name)
             log(`変換完了: ${name}`)
