@@ -79,8 +79,8 @@ func HandleFunc(w http.ResponseWriter, r *http.Request) {
 	// Accpet POST method only
 	if r.Method != http.MethodPost {
 		m := http.StatusMethodNotAllowed
-		io.WriteString(w, http.StatusText(m))
 		w.WriteHeader(m)
+		io.WriteString(w, http.StatusText(m))
 		return
 	}
 
