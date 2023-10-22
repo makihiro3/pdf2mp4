@@ -15,7 +15,7 @@ ulimit -r 0         #real-time non-blocking time  (microseconds, -R)
 ulimit -s 8192      #stack size                         (kbytes, -s)
 ulimit -t 300       #cpu time                          (seconds, -t)
 ulimit -u 64        #max user processes                         (-u)
-ulimit -v 524288    #virtual memory                     (kbytes, -v)
+#ulimit -v 524288    #virtual memory                     (kbytes, -v)
 ulimit -x 4         #file locks                                 (-x)
 #ulimit -P 0         #pseudoterminals
 ulimit -R 0         #real-time priority
