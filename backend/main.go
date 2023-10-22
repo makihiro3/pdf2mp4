@@ -84,7 +84,35 @@ func HandleFunc(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := Process(w, r.Body); err != nil {
+	if err := r.ParseForm(); err != nil {
+		log.Print(err)
+		m := http.StatusBadRequest
+		w.WriteHeader(m)
+		io.WriteString(w, http.StatusText(m))
+		return
+	}
+	size := 0
+	switch r.Form.Get("size") {
+	case "720":
+		size = 720
+	case "1080":
+		size = 1080
+	case "1440":
+		size = 1440
+	case "2160":
+		size = 2160
+	case "original":
+		size = 0
+	case "":
+		size = 0
+	default:
+		m := http.StatusBadRequest
+		w.WriteHeader(m)
+		io.WriteString(w, http.StatusText(m))
+		return
+	}
+
+	if err := Process(w, r.Body, size); err != nil {
 		log.Print(err)
 		m := http.StatusInternalServerError
 		w.WriteHeader(m)
@@ -94,7 +122,7 @@ func HandleFunc(w http.ResponseWriter, r *http.Request) {
 	r.Body.Close()
 }
 
-func Process(w io.Writer, r io.Reader) error {
+func Process(w io.Writer, r io.Reader, size int) error {
 	dir, err := os.MkdirTemp("", "example-*")
 	if err != nil {
 		return err
@@ -118,7 +146,7 @@ func Process(w io.Writer, r io.Reader) error {
 		return err
 	}
 
-	c := exec.Command("/run.sh", dir)
+	c := exec.Command("/run.sh", dir, fmt.Sprintf("%d", size))
 	c.Stdout = os.Stdout
 	c.Stderr = os.Stderr
 
