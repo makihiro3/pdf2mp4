@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="ja">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>pdf2mp4</title>
+    </head>
+    <body>
+        <script src="main.js" type="module"></script>
+        <h1>pdf2mp4</h1>
+        <form method="dialog" id="form">
+            <div>
+                <label for="input">変換対象PDFファイル</label>
+                <input type="file" id="input" name="input" accept="application/pdf" multiple>
+            </div>
+            <div>
+                <label for="size">解像度指定</label>
+                <select id="size" name="size">
+                    <option value="1080">1080p</option>
+                    <option value="1080">720p</option>
+                    <option value="original">original</option>
+                </select>
+            </div>
+            <input type="submit" value="変換">
+        </form>
+    </body>
+</html>
