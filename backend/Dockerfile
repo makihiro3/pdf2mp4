@@ -16,7 +16,7 @@ COPY ffmpeg-devel.asc ./
 RUN gpg --import ffmpeg-devel.asc
 RUN gpg --verify ffmpeg-6.0.tar.xz.asc ffmpeg-6.0.tar.xz
 RUN tar xaf ffmpeg-6.0.tar.xz
-WORKDIR ffmpeg-6.0
+WORKDIR /usr/src/ffmpeg-6.0
 RUN  ./configure --disable-all --disable-everything --enable-libopenh264 --enable-demuxer=image_ppm_pipe --enable-parser=pnm --enable-decoder=ppm --enable-encoder=libopenh264 --enable-protocol='fd,file' --enable-muxer=mp4 --enable-filter='scale,format' --enable-ffmpeg --enable-swscale --enable-avcodec --enable-avutil --enable-avfilter --enable-avformat
 RUN make -j $(nproc)
 RUN make install
