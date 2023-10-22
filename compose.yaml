@@ -13,12 +13,11 @@ services:
     init: true
     restart: always
   nginx:
-    image: nginx:alpine
+    build: frontend
     ports:
       - 8080:80
     volumes:
       - sock:/sock/:ro
-      - ./nginx.conf:/etc/nginx/nginx.conf
 volumes:
   tmp: {}
   sock: {}
