@@ -31,21 +31,26 @@ const convert = async (file, size) => {
         body: file,
     })
     if(res.status != 200) {
-        console.error("error in backend", res)
+        if (res.status == 400) {
+            log("client side error")
+        } else {
+            log("server side error")
+        }
         return null
     }
     return res.blob()
 }
 
 const handler = async event =>{
+    document.getElementById("message").innerText = ""
     const size = document.getElementById("size").value
     const input = document.getElementById("input")
     if(!(input.files instanceof FileList)){
-        console.error("input is not input[file] node")
+        log("input is not input[file] node")
         return
     }
     if(input.files.length == 0) {
-        console.warn("require file")
+        log("ファイルを指定してください")
         return
     }
     for(var f of input.files){
@@ -58,8 +63,14 @@ const handler = async event =>{
         const blob = await convert(content, size)
         if (blob !== null) {
             downloadLink(blob, name)
+            log(`変換完了: ${name}`)
         }
     }
+}
+
+const log = (message) => {
+    console.log(message)
+    document.getElementById("message").innerText = message
 }
 
 const main = async event => {
