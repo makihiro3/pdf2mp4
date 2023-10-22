@@ -42,7 +42,6 @@ const convert = async (file, size, interval) => {
 }
 
 const handler = async event =>{
-    document.getElementById("message").innerText = ""
     const size = document.getElementById("size").value
     const interval = document.getElementById("interval").value
     const input = document.getElementById("input")
@@ -56,22 +55,24 @@ const handler = async event =>{
     }
     for(var f of input.files){
         let name = f.name
+        log(`変換開始 name:"${name}" size:${size} interval:${interval}`)
         if(name.endsWith(".pdf")){
             name = name.substring(0, name.length-4)
         }
-        name += `.${size}.mp4`
+        name += `.t${interval}.r${size}.mp4`
         const content = await readFileAsync(f)
         const blob = await convert(content, size, interval)
         if (blob !== null) {
             downloadLink(blob, name)
-            log(`変換完了: ${name}`)
+            log(`変換終了 name:"${name}"`)
         }
     }
 }
 
 const log = (message) => {
+    const now = new Date()
     console.log(message)
-    document.getElementById("message").innerText = message
+    document.getElementById("log").value += `${now.toLocaleString()} ${message}\n`
 }
 
 const main = async event => {
