@@ -108,11 +108,17 @@ func Process(w io.Writer, r io.Reader) error {
 	if err != nil {
 		return err
 	}
-	input.ReadFrom(r)
-	input.Close()
+	if _, err := input.ReadFrom(r); err != nil {
+		return err
+	}
+	if err := input.Sync(); err != nil {
+		return err
+	}
+	if err := input.Close(); err != nil {
+		return err
+	}
 
-	outputpath := filepath.Join(dir, "output.mp4")
-	c := exec.Command("/run.sh", inputpath, outputpath)
+	c := exec.Command("/run.sh", dir)
 	c.Stdout = os.Stdout
 	c.Stderr = os.Stderr
 
@@ -120,6 +126,7 @@ func Process(w io.Writer, r io.Reader) error {
 		return err
 	}
 
+	outputpath := filepath.Join(dir, "output.mp4")
 	output, err := os.Open(outputpath)
 	if err != nil {
 		return err

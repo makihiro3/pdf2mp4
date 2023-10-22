@@ -21,5 +21,6 @@ ulimit -x 4         #file locks                                 (-x)
 ulimit -R 0         #real-time priority
 #ulimit -T 64        #thread
 
+DIR="$1"
 set -xe
-pdftoppm "$1" | ffmpeg -r 1/2 -f ppm_pipe -i - -c:v libopenh264 -profile:v main -allow_skip_frames 1 -r 30 -y -f mp4 "$2"
+pdftoppm "$DIR/input.pdf" | ffmpeg -r 1/2 -f ppm_pipe -i - -c:v libopenh264 -profile:v main -allow_skip_frames 1 -r 30 -y -f mp4 "$DIR/output.mp4"
