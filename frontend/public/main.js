@@ -53,7 +53,7 @@ const handler = async event =>{
         if(name.endsWith(".pdf")){
             name = name.substring(0, name.length-4)
         }
-        name += '.mp4'
+        name += `.${size}.mp4`
         const content = await readFileAsync(f)
         const blob = await convert(content, size)
         if (blob !== null) {
