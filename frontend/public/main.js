@@ -13,7 +13,6 @@ const downloadLink = (blob, filename) => {
     a.style = 'display: none'
     a.href = url
     a.download = filename
-    document.body.appendChild(a)
     a.click()
     a.remove()
 }
@@ -53,7 +52,7 @@ const handler = async event =>{
         log("ファイルを指定してください")
         return
     }
-    for(var f of input.files){
+    for(const f of input.files){
         let name = f.name
         log(`変換開始 name:"${name}" size:${size} interval:${interval}`)
         if(name.endsWith(".pdf")){

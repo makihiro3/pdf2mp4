@@ -1,4 +1,5 @@
 #!/bin/bash
+set -o pipefail
 #ulimit -b 0         #socket buffer size
 ulimit -c 0         #core file size                     (blocks, -c)
 ulimit -d 524288    #data seg size                      (kbytes, -d)
