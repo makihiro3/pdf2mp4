@@ -1,4 +1,4 @@
-FROM golang:1.21.3 AS build-server
+FROM golang:1.21.4 AS build-server
 
 WORKDIR /work
 COPY go.mod main.go ./
