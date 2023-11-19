@@ -1,6 +1,6 @@
 version: "3"
 services:
-  app:
+  backend:
     build: backend
     volumes:
       - tmp:/tmp:rw
@@ -12,7 +12,7 @@ services:
     cap_drop: [all]
     init: true
     restart: always
-  nginx:
+  frontend:
     build: frontend
     ports:
       - 8080:80
