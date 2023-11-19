@@ -13,11 +13,13 @@ import (
 	"os/signal"
 	"path/filepath"
 	"strings"
+	"time"
 )
 
 var (
-	listen = flag.String("listen", "./listen.socket", "listen unix domain socket")
-	debug  = flag.Bool("debug", false, "debug flag")
+	listen     = flag.String("listen", "./listen.socket", "listen unix domain socket")
+	debug      = flag.Bool("debug", false, "debug flag")
+	jobTimeout = flag.Duration("timeout", 5*time.Second, "job timeout")
 )
 
 func main() {
@@ -127,7 +129,7 @@ func HandleFunc(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := Process(w, r.Body, size, interval); err != nil {
+	if err := Process(r.Context(), w, r.Body, size, interval); err != nil {
 		log.Print(err)
 		m := http.StatusInternalServerError
 		w.WriteHeader(m)
@@ -137,7 +139,7 @@ func HandleFunc(w http.ResponseWriter, r *http.Request) {
 	r.Body.Close()
 }
 
-func Process(w io.Writer, r io.Reader, size, interval string) error {
+func Process(ctx context.Context, w io.Writer, r io.Reader, size, interval string) error {
 	dir, err := os.MkdirTemp("", "example-*")
 	if err != nil {
 		return err
@@ -161,7 +163,9 @@ func Process(w io.Writer, r io.Reader, size, interval string) error {
 		return err
 	}
 
-	c := exec.Command("/run.sh", dir, size, interval)
+	ctx_, cancel := context.WithTimeout(ctx, *jobTimeout)
+	defer cancel()
+	c := exec.CommandContext(ctx_, "/run.sh", dir, size, interval)
 	c.Stdout = os.Stdout
 	c.Stderr = os.Stderr
 
