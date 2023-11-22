@@ -20,9 +20,16 @@ var (
 	listen     = flag.String("listen", "./listen.socket", "listen unix domain socket")
 	debug      = flag.Bool("debug", false, "debug flag")
 	jobTimeout = flag.Duration("timeout", 5*time.Second, "job timeout")
+	queueLen   = flag.Int("queue", 10, "job queue length")
 )
 
+type Job struct {
+	Cmd    *exec.Cmd
+	Finish chan error
+}
+
 type Handler struct {
+	Channel chan *Job
 }
 
 func main() {
@@ -39,8 +46,17 @@ func execute() error {
 		}
 	})
 	flag.Parse()
-	http.Handle("/convert.cgi", &Handler{})
+	jobCh := make(chan *Job, *queueLen)
+	defer close(jobCh)
+	go JobWorker(jobCh)
+	http.Handle("/convert.cgi", &Handler{jobCh})
 	return ListenAndServe()
+}
+
+func JobWorker(jobCh chan *Job) {
+	for j := range jobCh {
+		j.Finish <- j.Cmd.Run()
+	}
 }
 
 func ListenAndServe() error {
@@ -172,7 +188,11 @@ func (h *Handler) Process(ctx context.Context, w io.Writer, r io.Reader, size, i
 	c.Stdout = os.Stdout
 	c.Stderr = os.Stderr
 
-	if err := c.Run(); err != nil {
+	errCh := make(chan error, 1)
+	defer close(errCh)
+	j := &Job{Cmd: c, Finish: errCh}
+	h.Channel <- j
+	if err := <-errCh; err != nil {
 		return err
 	}
 
