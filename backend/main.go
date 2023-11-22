@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"errors"
 	"flag"
 	"fmt"
 	"io"
@@ -22,6 +23,8 @@ var (
 	jobTimeout = flag.Duration("timeout", 5*time.Second, "job timeout")
 	queueLen   = flag.Int("queue", 10, "job queue length")
 )
+
+var ErrTooManyJobs = errors.New("job queue is full")
 
 type Job struct {
 	Cmd    *exec.Cmd
@@ -151,6 +154,9 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if err := h.Process(r.Context(), w, r.Body, size, interval); err != nil {
 		log.Print(err)
 		m := http.StatusInternalServerError
+		if errors.Is(err, ErrTooManyJobs) {
+			m = http.StatusTooManyRequests
+		}
 		w.WriteHeader(m)
 		io.WriteString(w, http.StatusText(m))
 		return
@@ -191,7 +197,11 @@ func (h *Handler) Process(ctx context.Context, w io.Writer, r io.Reader, size, i
 	errCh := make(chan error, 1)
 	defer close(errCh)
 	j := &Job{Cmd: c, Finish: errCh}
-	h.Channel <- j
+	select {
+	case h.Channel <- j:
+	default:
+		return ErrTooManyJobs
+	}
 	if err := <-errCh; err != nil {
 		return err
 	}
