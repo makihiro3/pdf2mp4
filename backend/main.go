@@ -22,6 +22,9 @@ var (
 	jobTimeout = flag.Duration("timeout", 5*time.Second, "job timeout")
 )
 
+type Handler struct {
+}
+
 func main() {
 	if err := execute(); err != nil {
 		log.Fatal(err)
@@ -36,7 +39,7 @@ func execute() error {
 		}
 	})
 	flag.Parse()
-	http.HandleFunc("/convert.cgi", HandleFunc)
+	http.Handle("/convert.cgi", &Handler{})
 	return ListenAndServe()
 }
 
@@ -77,7 +80,7 @@ func ListenAndServe() error {
 	return nil
 }
 
-func HandleFunc(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	// Accpet POST method only
 	if r.Method != http.MethodPost {
 		m := http.StatusMethodNotAllowed
@@ -129,7 +132,7 @@ func HandleFunc(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := Process(r.Context(), w, r.Body, size, interval); err != nil {
+	if err := h.Process(r.Context(), w, r.Body, size, interval); err != nil {
 		log.Print(err)
 		m := http.StatusInternalServerError
 		w.WriteHeader(m)
@@ -139,7 +142,7 @@ func HandleFunc(w http.ResponseWriter, r *http.Request) {
 	r.Body.Close()
 }
 
-func Process(ctx context.Context, w io.Writer, r io.Reader, size, interval string) error {
+func (h *Handler) Process(ctx context.Context, w io.Writer, r io.Reader, size, interval string) error {
 	dir, err := os.MkdirTemp("", "example-*")
 	if err != nil {
 		return err
