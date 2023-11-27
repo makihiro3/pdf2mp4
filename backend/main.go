@@ -194,15 +194,7 @@ func (h *Handler) Process(ctx context.Context, w io.Writer, r io.Reader, size, i
 	c.Stdout = os.Stdout
 	c.Stderr = os.Stderr
 
-	errCh := make(chan error, 1)
-	defer close(errCh)
-	j := &Job{Cmd: c, Finish: errCh}
-	select {
-	case h.Channel <- j:
-	default:
-		return ErrTooManyJobs
-	}
-	if err := <-errCh; err != nil {
+	if err := h.RunSequencial(c); err != nil {
 		return err
 	}
 
@@ -214,4 +206,17 @@ func (h *Handler) Process(ctx context.Context, w io.Writer, r io.Reader, size, i
 	defer output.Close()
 	_, err = io.Copy(w, output)
 	return err
+}
+
+// Run job in sequencial
+func (h *Handler) RunSequencial(c *exec.Cmd) error {
+	errCh := make(chan error, 1)
+	defer close(errCh)
+	j := &Job{Cmd: c, Finish: errCh}
+	select {
+	case h.Channel <- j:
+	default:
+		return ErrTooManyJobs
+	}
+	return <-errCh
 }
