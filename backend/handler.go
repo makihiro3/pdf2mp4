@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"errors"
+	"fmt"
 	"io"
 	"log"
 	"net/http"
@@ -97,18 +98,8 @@ func (h *Handler) Process(ctx context.Context, w io.Writer, r io.Reader, size, i
 	}
 
 	inputpath := filepath.Join(dir, "input.pdf")
-	input, err := os.OpenFile(inputpath, os.O_RDWR|os.O_CREATE, 0755)
-	if err != nil {
-		return err
-	}
-	if _, err := input.ReadFrom(r); err != nil {
-		return err
-	}
-	if err := input.Sync(); err != nil {
-		return err
-	}
-	if err := input.Close(); err != nil {
-		return err
+	if err := WriteFile(inputpath, r); err != nil {
+		return fmt.Errorf("request read error %w", err)
 	}
 
 	ctx_, cancel := context.WithTimeout(ctx, *jobTimeout)
@@ -122,13 +113,10 @@ func (h *Handler) Process(ctx context.Context, w io.Writer, r io.Reader, size, i
 	}
 
 	outputpath := filepath.Join(dir, "output.mp4")
-	output, err := os.Open(outputpath)
-	if err != nil {
-		return err
+	if err := ReadFile(outputpath, w); err != nil {
+		return fmt.Errorf("request write error %w", err)
 	}
-	defer output.Close()
-	_, err = io.Copy(w, output)
-	return err
+	return nil
 }
 
 // Run job in sequencial
@@ -142,4 +130,24 @@ func (h *Handler) RunSequencial(c *exec.Cmd) error {
 		return ErrTooManyJobs
 	}
 	return <-errCh
+}
+
+func WriteFile(path string, r io.Reader) error {
+	f, err := os.OpenFile(path, os.O_RDWR|os.O_CREATE, 0755)
+	if err != nil {
+		return err
+	}
+	defer f.Close()
+	_, err = f.ReadFrom(r)
+	return err
+}
+
+func ReadFile(path string, w io.Writer) error {
+	f, err := os.Open(path)
+	if err != nil {
+		return err
+	}
+	defer f.Close()
+	_, err = io.Copy(w, f)
+	return err
 }
