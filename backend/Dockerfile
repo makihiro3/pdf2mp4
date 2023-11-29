@@ -1,7 +1,7 @@
 FROM golang:1.21.4 AS build-server
 
 WORKDIR /work
-COPY go.mod main.go ./
+COPY ./ ./
 ARG CGO_ENABLED=0
 RUN go build -o pdf2mp4
 
