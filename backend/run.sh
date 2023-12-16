@@ -36,5 +36,8 @@ case "$INTERVAL" in
 3) RATE="1/3" ;;
 esac
 
+chmod 775 "$DIR"
+chown daemon:root "$DIR"
+SETPRIV="setpriv --reuid=daemon --regid=daemon --init-groups --no-new-privs"
 set -xe
-pdftoppm "${PDFTOPPM_OPTS[@]}" "$DIR/input.pdf" | ffmpeg -r "$RATE" -f ppm_pipe -i - -c:v libopenh264 -profile:v high -allow_skip_frames 1 -coder cabac -qmin 1 -qmax 50 -r 30 -y -f mp4 "$DIR/output.mp4"
+$SETPRIV pdftoppm "${PDFTOPPM_OPTS[@]}" "$DIR/input.pdf" | $SETPRIV ffmpeg -r "$RATE" -f ppm_pipe -i - -c:v libopenh264 -profile:v high -allow_skip_frames 1 -coder cabac -qmin 1 -qmax 50 -r 30 -y -f mp4 "$DIR/output.mp4"

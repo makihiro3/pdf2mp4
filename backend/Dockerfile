@@ -24,11 +24,11 @@ RUN make install
 
 FROM ubuntu:jammy
 RUN apt-get update && apt-get install -y --no-install-recommends libopenh264-cisco6 poppler-utils && apt-get clean && rm -rf /var/lib/apt/lists/*
-RUN install -d -o root -g daemon -m 0775 /sock
+RUN install -d -o root -g root -m 0755 /sock
 COPY --from=builder /usr/local/bin/ffmpeg /usr/local/bin/ffmpeg
 COPY --from=build-server /work/pdf2mp4 /pdf2mp4
 COPY run.sh /run.sh
-USER daemon
+USER root
 ENV LISTEN=/sock/listen.sock
 CMD ["/pdf2mp4"]
 STOPSIGNAL SIGINT
