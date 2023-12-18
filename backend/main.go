@@ -14,6 +14,9 @@ import (
 )
 
 var (
+	gcInterval = flag.Duration("interval", 1*time.Hour, "garbage collection interval")
+	expire     = flag.Duration("expire", 7*24*time.Hour, "expire duration")
+	cacheDir   = flag.String("cache", "./cache", "cache directory")
 	listen     = flag.String("listen", "./listen.socket", "listen unix domain socket")
 	debug      = flag.Bool("debug", false, "debug flag")
 	jobTimeout = flag.Duration("timeout", 5*time.Second, "job timeout")
@@ -36,6 +39,9 @@ func execute() error {
 	flag.Parse()
 	jobCh := make(chan *Job, *queueLen)
 	defer close(jobCh)
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	go GrabageCollect(ctx, *cacheDir, *gcInterval, *expire)
 	go JobWorker(jobCh)
 	http.Handle("/convert.cgi", &Handler{jobCh})
 	return ListenAndServe()

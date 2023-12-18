@@ -30,5 +30,6 @@ COPY --from=build-server /work/pdf2mp4 /pdf2mp4
 COPY run.sh /run.sh
 USER root
 ENV LISTEN=/sock/listen.sock
+ENV CACHE=/data
 CMD ["/pdf2mp4"]
 STOPSIGNAL SIGINT
