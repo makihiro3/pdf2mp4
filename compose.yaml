@@ -5,6 +5,7 @@ services:
     volumes:
       - tmp:/tmp:rw
       - sock:/sock/:rw
+      - cache:/data/:rw
     network_mode: none
     read_only: true
     security_opt:
@@ -22,6 +23,8 @@ services:
       - no-new-privileges=true
     volumes:
       - sock:/sock/:ro
+      - cache:/usr/share/nginx/html/d/:ro
 volumes:
+  cache: {}
   tmp: {}
   sock: {}
