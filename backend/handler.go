@@ -2,6 +2,8 @@ package main
 
 import (
 	"context"
+	"crypto/sha256"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
@@ -10,6 +12,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"syscall"
 )
 
 var ErrTooManyJobs = errors.New("job queue is full")
@@ -97,10 +100,14 @@ func (h *Handler) Process(ctx context.Context, w io.Writer, r io.Reader, size, i
 		defer os.RemoveAll(dir)
 	}
 
+	hash := sha256.New()
+	tee := io.TeeReader(r, hash)
 	inputpath := filepath.Join(dir, "input.pdf")
-	if err := WriteFile(inputpath, r); err != nil {
+	if err := WriteFile(inputpath, tee); err != nil {
 		return fmt.Errorf("request read error %w", err)
 	}
+	digest := hash.Sum(nil)
+	name := fmt.Sprintf("%x.r%s.t%s.mp4", digest, size, interval)
 
 	ctx_, cancel := context.WithTimeout(ctx, *jobTimeout)
 	defer cancel()
@@ -113,9 +120,27 @@ func (h *Handler) Process(ctx context.Context, w io.Writer, r io.Reader, size, i
 	}
 
 	outputpath := filepath.Join(dir, "output.mp4")
-	if err := ReadFile(outputpath, w); err != nil {
-		return fmt.Errorf("request write error %w", err)
+	cachePath := filepath.Join(*cacheDir, name)
+	if err := os.Rename(outputpath, cachePath); err != nil {
+		if !errors.Is(err, syscall.EXDEV) {
+			return fmt.Errorf("cache write error %w", err)
+		}
+		// Rename return EXDEV when inter-mountpoint
+		// fallback copy and remove
+		f, err := os.Open(outputpath)
+		if err != nil {
+			return fmt.Errorf("result read error %w", err)
+		}
+		defer f.Close()
+		if err := WriteFile(cachePath, f); err != nil {
+			return fmt.Errorf("cache write error %w", err)
+		}
 	}
+	json.NewEncoder(w).Encode(map[string]string{
+		"file":     name,
+		"size":     size,
+		"interval": interval,
+	})
 	return nil
 }
 
