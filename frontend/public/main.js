@@ -1,3 +1,6 @@
+
+let download_url = ""
+
 // input type="file"要素からファイルのバイト列を取り出す
 const readFileAsync = file =>
     new Promise((resolve, reject) => {
@@ -6,16 +9,6 @@ const readFileAsync = file =>
         reader.onerror = () => reject(reader.error)
         reader.readAsArrayBuffer(file)
     })
-
-const downloadLink = (blob, filename) => {
-    const url = window.URL.createObjectURL(blob)
-    const a = document.createElement('a')
-    a.style = 'display: none'
-    a.href = url
-    a.download = filename
-    a.click()
-    a.remove()
-}
 
 const convert = async (file, size, interval) => {
     const res = await fetch(`/convert.cgi?size=${size}&interval=${interval}`,{
@@ -37,7 +30,7 @@ const convert = async (file, size, interval) => {
         }
         return null
     }
-    return res.blob()
+    return res.json()
 }
 
 const handler = async event =>{
@@ -60,10 +53,14 @@ const handler = async event =>{
         }
         name += `.t${interval}.r${size}.mp4`
         const content = await readFileAsync(f)
-        const blob = await convert(content, size, interval)
-        if (blob !== null) {
-            downloadLink(blob, name)
+        const ret = await convert(content, size, interval)
+        if (ret !== null) {
             log(`変換終了 name:"${name}"`)
+            const url = window.location.origin+`/d/${ret.file}`
+            download_url = url
+            const link = document.getElementById("result")
+            link.href = `/d/${ret.file}`
+            link.innerText = ret.file
         }
     }
 }
@@ -74,7 +71,14 @@ const log = (message) => {
     document.getElementById("log").value += `${now.toLocaleString()} ${message}\n`
 }
 
+const copy = () => {
+    if (download_url !== "") {
+        navigator.clipboard.writeText(download_url)
+    }
+}
+
 const main = async event => {
     document.getElementById("form").addEventListener("submit", handler)
+    document.getElementById("clipboard").addEventListener("click", copy)
 }
 document.addEventListener("DOMContentLoaded", main)
