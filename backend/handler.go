@@ -174,7 +174,7 @@ func MoveFile(src, dst string) error {
 		return fmt.Errorf("open source file error %w", err)
 	}
 	defer f.Close()
-	if err := WriteFile(src, f); err != nil {
+	if err := WriteFile(dst, f); err != nil {
 		return fmt.Errorf("open destination file and copy error %w", err)
 	}
 	if err := os.Remove(src); err != nil {
