@@ -8,6 +8,7 @@
     <body>
         <script src="main.js" type="module"></script>
         <h1>pdf2mp4</h1>
+        <h2>Settings</h2>
         <form method="dialog" id="form">
             <div>
                 <label for="input">変換対象PDFファイル(max size 20MB)</label>
@@ -32,10 +33,10 @@
             </div>
             <input type="submit" value="変換">
         </form>
-    <div id="output">
-        <label>Output</label>
-    </div>
-    <button id="clipboard">copy to clipboard</button> <a href="" id="result"></a>
+        <h2>Output</h2>
+        <button id="clipboard">copy to clipboard</button>
+        <p>URL <a href="" id="url"></a></p>
+        <p>有効期限 <span id="expire"></span></p>
         <div><label for="log">Log</label></div>
         <textarea id="log" name="log" rows="10" cols="80" readonly></textarea>
     <footer>不具合や改善点の報告は<a href="https://github.com/makihiro3/pdf2mp4/">Github</a>までお問い合わせください。</footer>

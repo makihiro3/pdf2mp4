@@ -13,6 +13,7 @@ import (
 	"os/exec"
 	"path/filepath"
 	"syscall"
+	"time"
 )
 
 var ErrTooManyJobs = errors.New("job queue is full")
@@ -128,6 +129,7 @@ func (h *Handler) Process(ctx context.Context, w io.Writer, r io.Reader, size, i
 		"file":     name,
 		"size":     size,
 		"interval": interval,
+		"expire":   time.Now().Add(*expire).Format(time.RFC3339),
 	})
 	return nil
 }

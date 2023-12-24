@@ -58,9 +58,10 @@ const handler = async event =>{
             log(`変換終了 name:"${name}"`)
             const url = window.location.origin+`/d/${ret.file}`
             download_url = url
-            const link = document.getElementById("result")
+            const link = document.getElementById("url")
             link.href = `/d/${ret.file}`
             link.innerText = ret.file
+            document.getElementById("expire").innerText = new Date(ret.expire).toLocaleString()
         }
     }
 }
