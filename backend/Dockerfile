@@ -31,6 +31,5 @@ COPY run.sh /run.sh
 USER root
 ENV LISTEN=/sock/listen.sock
 ENV CACHE=/data
-ENTRYPOINT ["/usr/bin/tini", "--"]
-CMD ["/pdf2mp4"]
+CMD ["/usr/bin/tini", "--", "/pdf2mp4"]
 STOPSIGNAL SIGINT
