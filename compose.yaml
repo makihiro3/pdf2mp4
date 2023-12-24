@@ -12,7 +12,6 @@ services:
       - no-new-privileges=true
     cap_drop: [all]
     cap_add: [CAP_CHOWN, CAP_SETUID, CAP_SETGID]
-    init: true
     restart: always
   frontend:
     build: frontend
