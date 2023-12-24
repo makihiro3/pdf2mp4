@@ -121,20 +121,8 @@ func (h *Handler) Process(ctx context.Context, w io.Writer, r io.Reader, size, i
 
 	outputpath := filepath.Join(dir, "output.mp4")
 	cachePath := filepath.Join(*cacheDir, name)
-	if err := os.Rename(outputpath, cachePath); err != nil {
-		if !errors.Is(err, syscall.EXDEV) {
-			return fmt.Errorf("cache write error %w", err)
-		}
-		// Rename return EXDEV when inter-mountpoint
-		// fallback copy and remove
-		f, err := os.Open(outputpath)
-		if err != nil {
-			return fmt.Errorf("result read error %w", err)
-		}
-		defer f.Close()
-		if err := WriteFile(cachePath, f); err != nil {
-			return fmt.Errorf("cache write error %w", err)
-		}
+	if err = MoveFile(outputpath, cachePath); err != nil {
+		return err
 	}
 	json.NewEncoder(w).Encode(map[string]string{
 		"file":     name,
@@ -167,12 +155,30 @@ func WriteFile(path string, r io.Reader) error {
 	return err
 }
 
-func ReadFile(path string, w io.Writer) error {
-	f, err := os.Open(path)
+// MoveFile move file to dst
+// If dst is inter-mountpoint, fallback copy and remove
+func MoveFile(src, dst string) error {
+	err := os.Rename(src, dst)
+	if err == nil {
+		// Success rename
+		return nil
+	}
+	if !errors.Is(err, syscall.EXDEV) {
+		// Other error
+		return fmt.Errorf("rename operation error %w", err)
+	}
+	// Rename return EXDEV when inter-mountpoint
+	// fallback copy and remove
+	f, err := os.Open(src)
 	if err != nil {
-		return err
+		return fmt.Errorf("open source file error %w", err)
 	}
 	defer f.Close()
-	_, err = io.Copy(w, f)
-	return err
+	if err := WriteFile(src, f); err != nil {
+		return fmt.Errorf("open destination file and copy error %w", err)
+	}
+	if err := os.Remove(src); err != nil {
+		return fmt.Errorf("remove source file %w", err)
+	}
+	return nil
 }
