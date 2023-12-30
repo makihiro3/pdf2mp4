@@ -9,6 +9,7 @@
     <body>
         <script src="main.js" type="module"></script>
         <h1><img src="/favicon.svg" alt="webpage icon">PDF to MP4</h1>
+        <p>本サービスはサーバー側でPDFをMP4に変換し、MP4ファイルを一定期間ホスティングします。</p>
         <h2>Settings</h2>
         <form method="dialog" id="form">
             <div>
@@ -28,8 +29,8 @@
             <div>
                 <label for="interval">ページ送り間隔</label>
                 <select id="interval" name="interval">
-                    <option value="1">1秒</option>
-                    <option value="2">2秒</option>
+                    <option value="1">1秒 UnaSlide向け</option>
+                    <option value="2" selected>2秒 VRC-LT向け</option>
                 </select>
             </div>
             <input type="submit" value="変換">
@@ -40,6 +41,15 @@
         <p>有効期限 <span id="expire"></span></p>
         <div><label for="log">Log</label></div>
         <textarea id="log" name="log" rows="10" cols="80" readonly></textarea>
+        <h2>注意点</h2>
+        <ol>
+            <li>アップロード可能なPDFファイルの最大サイズは20MBです。</li>
+            <li>アップロードしたPDFファイルは変換後削除されます。</li>
+            <li>生成した動画ファイルは最短１週間最大２週間ほどサーバーに残ります。</li>
+            <li>生成した動画ファイルのURLを知る者は誰でもアクセスできます。</li>
+            <li>本サービスは動作を保証せず、成果物に対して一切の責任を負いません。</li>
+            <li>弁護士会照会や捜査関係事項照会に対して保有する通信記録を開示することがあります。</li>
+        </ol>
     <footer>不具合や改善点の報告は<a href="https://github.com/makihiro3/pdf2mp4/">Github</a>までお問い合わせください。</footer>
     </body>
 </html>
