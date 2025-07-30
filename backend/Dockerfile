@@ -4,7 +4,7 @@ WORKDIR /work
 COPY ./ ./
 RUN make
 
-FROM buildpack-deps:jammy AS builder
+FROM buildpack-deps:noble AS builder
 RUN apt-get update
 RUN apt-get install -y --no-install-recommends libopenh264-dev nasm
 WORKDIR /usr/src
@@ -21,8 +21,8 @@ RUN  ./configure --disable-all --disable-everything --enable-libopenh264 --enabl
 RUN make -j $(nproc)
 RUN make install
 
-FROM ubuntu:jammy
-RUN apt-get update && apt-get install -y --no-install-recommends tini libopenh264-cisco6 poppler-utils poppler-data fonts-noto-core fonts-noto-cjk fonts-noto-cjk-extra && apt-get clean && rm -rf /var/lib/apt/lists/*
+FROM ubuntu:noble
+RUN apt-get update && apt-get install -y --no-install-recommends tini libopenh264-cisco7 poppler-utils poppler-data fonts-noto-core fonts-noto-cjk fonts-noto-cjk-extra && apt-get clean && rm -rf /var/lib/apt/lists/*
 RUN install -d -o root -g root -m 0755 /sock
 COPY --from=builder /usr/local/bin/ffmpeg /usr/local/bin/ffmpeg
 COPY --from=build-server /work/backend /pdf2mp4
