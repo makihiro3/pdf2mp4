@@ -1,4 +1,4 @@
-FROM golang:1.21.4 AS build-server
+FROM golang:1.24.5 AS build-server
 
 WORKDIR /work
 COPY ./ ./
