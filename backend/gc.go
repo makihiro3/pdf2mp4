@@ -4,6 +4,7 @@ import (
 	"context"
 	"log"
 	"os"
+	"path/filepath"
 	"time"
 )
 
@@ -26,8 +27,10 @@ func GrabageCollect(ctx context.Context, dir string, interval, expire time.Durat
 				return err
 			}
 			if st.ModTime().Before(th) {
-				log.Printf("Remove: %s", file.Name())
-				if err := os.Remove(file.Name()); err != nil {
+				n := file.Name()
+				log.Printf("Remove: %s", n)
+				p := filepath.Join(dir, n)
+				if err := os.Remove(p); err != nil {
 					log.Print(err)
 					return err
 				}
