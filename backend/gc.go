@@ -14,6 +14,7 @@ func GrabageCollect(ctx context.Context, dir string, interval, expire time.Durat
 	for {
 		files, err := os.ReadDir(dir)
 		if err != nil {
+			log.Print(err)
 			return err
 		}
 		th := time.Now().Add(-expire)
@@ -21,11 +22,13 @@ func GrabageCollect(ctx context.Context, dir string, interval, expire time.Durat
 		for _, file := range files {
 			st, err := file.Info()
 			if err != nil {
+				log.Print(err)
 				return err
 			}
 			if st.ModTime().Before(th) {
 				log.Printf("Remove: %s", file.Name())
 				if err := os.Remove(file.Name()); err != nil {
+					log.Print(err)
 					return err
 				}
 			}
