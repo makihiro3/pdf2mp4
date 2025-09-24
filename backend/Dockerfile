@@ -9,7 +9,7 @@ RUN apt-get update
 RUN apt-get install -y --no-install-recommends libopenh264-dev nasm
 WORKDIR /usr/src
 
-ARG VERSION=7.1
+ARG VERSION=8.0
 RUN curl -LO https://ffmpeg.org/releases/ffmpeg-$VERSION.tar.xz
 RUN curl -LO https://ffmpeg.org/releases/ffmpeg-$VERSION.tar.xz.asc
 COPY ffmpeg-devel.asc ./
